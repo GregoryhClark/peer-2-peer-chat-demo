@@ -1,0 +1,14 @@
+
+.chat_parent_wrapper{
+    display: flex;
+}
+.convos_wrapper {
+    width:250px;
+    display: flex;
+    flex-direction: column;
+    margin:5px;
+}
+.convo {
+    border:black;
+    margin:2px;
+  }

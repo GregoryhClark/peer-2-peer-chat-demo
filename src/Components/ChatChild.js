@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import io from "socket.io-client";
+
 class ChatChild extends Component {
   constructor(props) {
     super(props);
@@ -7,7 +8,7 @@ class ChatChild extends Component {
       messages: [],
       // username: '',
       previousRoom: props.previousRoom,
-      room: props.room,
+      roomKey: props.roomKey,
       message: "",
       userTyping: false
     };
@@ -18,22 +19,22 @@ class ChatChild extends Component {
     this.socket.on(`user not typing`, data => this.removeUserTyping(data));
   }
   componentDidMount() {
-    if (this.props.room) {
-      console.log("will join rooom ", this.props.room);
-      this.socket.emit("join room", { room: this.props.room });
+    if (this.props.roomKey) {
+      console.log("will join rooom ", this.props.roomKey);
+      this.socket.emit("join room", { roomKey: this.props.roomKey });
     }
   }
   componentDidUpdate() {
-    if (this.props.room) {
+    if (this.props.roomKey) {
       //might need to add a condtion to see if previous and current are different.
       console.log(
         "leaving ",
         this.props.previousRoom,
         " and joining ",
-        this.props.room
+        this.props.roomKey
       );
-      this.socket.emit("leave room", { room: this.props.previousRoom });
-      this.socket.emit("join room", { room: this.props.room });
+      this.socket.emit("leave room", { roomKey: this.props.previousRoom });
+      this.socket.emit("join room", { roomKey: this.props.roomKey });
     }
   }
 
@@ -47,11 +48,11 @@ class ChatChild extends Component {
     // } else {
     this.socket.emit(`${type} message to room`, {
       message: this.props.userName + ': ' + message,
-      room: this.props.room
+      roomKey: this.props.roomKey
     });
     // }
     this.setState({ message: "" }, () =>
-      this.socket.emit("user not typing", { room: this.props.room })
+      this.socket.emit("user not typing", { roomKey: this.props.roomKey })
     );
   };
 
@@ -60,19 +61,19 @@ class ChatChild extends Component {
         message: val
      }, () => {
       if (this.state.message)
-        this.socket.emit("user is typing", { room: this.props.room });
-      else this.socket.emit("user not typing", { room: this.props.room });
+        this.socket.emit("user is typing", { roomKey: this.props.roomKey });
+      else this.socket.emit("user not typing", { roomKey: this.props.roomKey });
     });
   }
 
   setUserTyping(data) {
-    if (data.room === this.props.room) this.setState({ userTyping: true });
-    else if (!data.room && !this.props.room)
+    if (data.roomKey === this.props.roomKey) this.setState({ userTyping: true });
+    else if (!data.roomKey && !this.props.roomKey)
       this.setState({ userTyping: true });
   }
   removeUserTyping(data) {
-    if (data.room === this.props.room) this.setState({ userTyping: false });
-    else if (!data.room && !this.props.room)
+    if (data.roomKey === this.props.roomKey) this.setState({ userTyping: false });
+    else if (!data.roomKey && !this.props.roomKey)
       this.setState({ userTyping: false });
   }
 
@@ -87,11 +88,10 @@ class ChatChild extends Component {
             <div className="card">
               <div className="card-body">
                 <div className="card-title">
-                  {this.props.room
-                    ? `Room: ${this.props.room}`
-                    : "Get a room!"}
-                    <br/>
+     
                     User:{this.props.userName}
+                    <br/>
+                    Chatting With:{this.props.chattingWith}
                 </div>
                 <hr />
               </div>
@@ -99,8 +99,8 @@ class ChatChild extends Component {
                 {/* <input type="text" placeholder="Username" value={this.state.username} onChange={ev => this.setState({username: ev.target.value})} className="form-control"/> */}
                 {/* <h3>User Name:</h3>
                                 <h4>{this.props.userName}</h4> */}
-                {/* <h3>Room:</h3>
-                                <h4>{this.props.room}</h4> */}
+                {/* <h3>RoomKey:</h3>
+                                <h4>{this.props.roomKey}</h4> */}
                 <div className="messages">{messages}</div>
                 {this.state.userTyping && (
                   <p className="user-typing">Another User is Typing</p>

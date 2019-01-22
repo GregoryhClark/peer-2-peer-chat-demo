@@ -18,27 +18,27 @@ io.on('connection', (socket) => {
 
     //ROOMS SOCKETS
     socket.on('join room', data => {
-        socket.join(data.room)
-        // console.log('joined room ', data.room)
-        io.to(data.room).emit('room joined', data)
+        socket.join(data.roomKey)
+        // console.log('joined room ', data.roomKey)
+        io.to(data.roomKey).emit('room joined', data)
     })
     socket.on("leave room", data => {
-        socket.leave(data.room)
+        socket.leave(data.roomKey)
 
     })
 
     socket.on('emit message to room', data => {
-        console.log('room socket hit: emit ', data.room)
+        console.log('room socket hit: emit ', data.roomKey)
         socket.emit('generate room response', data)
     })
 
     socket.on('broadcast message to room', data => {
         // console.log('room socket hit: broadcast ', data.room)
-        socket.to(data.room).broadcast.emit('generate room response', data)
+        socket.to(data.roomKey).broadcast.emit('generate room response', data)
     })
     socket.on('blast message to room', data => {
         // console.log('room socket hit: blast', data.room)
-        io.to(data.room).emit('generate room response', data)
+        io.to(data.roomKey).emit('generate room response', data)
     })
 });
 
