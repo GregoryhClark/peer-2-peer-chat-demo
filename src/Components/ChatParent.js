@@ -2,18 +2,7 @@ import React, { Component } from "react";
 import ChatChild from "./ChatChild";
 import axios from "axios";
 import './ChatParent.css';
-// import { apiRoutes } from "../utils/apiService/config";
 import {REACT_APP_TOKEN, baseUrl } from "../utils/utils";
-
-// import {
-//   AccountFormModel,
-//   ProfileFormModel
-// } from "../utils/apiService/Models/User";
-require('dotenv').config();
-
-// const {
-//   REACT_APP_TOKEN
-// } = process.env;
 
 export default class ChatParent extends Component {
   constructor(props) {
@@ -24,25 +13,19 @@ export default class ChatParent extends Component {
       userLastName:'',
       chattingFirstName: "",
       chattingLastName: "",
-      // userName: "None Selected",
       roomKey: "",
       previousRoomKey: "Room 1",
       userGroups: [],
       users: [],
       convos: []
-      // userGroupsSubscribed: [],
-      // userConversations: [],
-      // userFriends: []
     };
-    // this.handleSelectUser = this.handleSelectUser.bind(this);
-    // this.changeUser = this.changeUser.bind(this);
+
     this.changeRoom = this.changeRoom.bind(this);
   }
   componentWillMount() {
     axios({
       method: "get",
       url: `${baseUrl}user/info`,
-      // params: {'HTTP_CONTENT_LANGUAGE': self.language},
       headers: {
         "auth-token":REACT_APP_TOKEN
       }
@@ -63,16 +46,13 @@ export default class ChatParent extends Component {
     }).then(res => {
       //Slicing here because currently I get back ALL users. This needs to change to only get affiliated users. -Greg
       let users = res.data.data.users.list.slice(0, 10);
-      // console.log(users);
       this.setState({
         users: users
       });
     });
   }
-
   changeRoom(event) {
     if (event.target.value !== "Select") {
-      // console.log("hit here", event.target.value.split(','));
       let values = event.target.value.split(',')
       //generating a string that is unique to this pair of users
       let newKey = [this.state.userID, values[0]].sort().join("");
@@ -84,10 +64,8 @@ export default class ChatParent extends Component {
       });
     }
   }
-
   render() {
     let convos = this.state.users.map(user => {
-      // console.log(user)
         return (
           <button
             key={user.id}
@@ -101,13 +79,11 @@ export default class ChatParent extends Component {
       
     });
     let filteredConvos = convos.filter((button)=>{
-      console.log(button.props.value[1])
       return button.props.value[1]
     })
-
-    // console.log(convos);
     let chatView = this.state.roomKey? 
     <ChatChild
+    userID = {this.state.userID}
     userName={`${this.state.userFirstName} ${this.state.userLastName}`}
     chattingWith={`${this.state.chattingFirstName} ${this.state.chattingLastName}`}
     roomKey={this.state.roomKey}

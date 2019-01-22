@@ -6,10 +6,13 @@ class ChatChild extends Component {
     super(props);
     this.state = {
       messages: [],
-      // username: '',
       previousRoom: props.previousRoom,
       roomKey: props.roomKey,
-      message: "",
+      message: {
+        senderID:0,
+        text:'',
+        timeStamp:Date
+      },
       userTyping: false
     };
     this.socket = io.connect(":5000");
@@ -43,24 +46,29 @@ class ChatChild extends Component {
   }
 
   sendMessage = (type, message) => {
-    // if (!this.props.room) {
-    //   this.socket.emit(`${type} message to general`, { message });
-    // } else {
     this.socket.emit(`${type} message to room`, {
-      message: this.props.userName + ': ' + message,
+      message: message,
       roomKey: this.props.roomKey
     });
     // }
-    this.setState({ message: "" }, () =>
+    this.setState({ message: {
+      senderID:0,
+      text:'',
+      timeStamp:Date()} }, () =>
+      
       this.socket.emit("user not typing", { roomKey: this.props.roomKey })
     );
   };
 
   updateInput(val) {
     this.setState({ 
-        message: val
+      message: {
+        senderID:this.props.userID,
+        text:val,
+        timeStamp:Date()
+      }
      }, () => {
-      if (this.state.message)
+      if (this.state.message.text)
         this.socket.emit("user is typing", { roomKey: this.props.roomKey });
       else this.socket.emit("user not typing", { roomKey: this.props.roomKey });
     });
@@ -78,8 +86,13 @@ class ChatChild extends Component {
   }
 
   render() {
-    const messages = this.state.messages.map((message, index) => {
-      return <p key={index}>{message}</p>;
+    const messagesList = this.state.messages.map((message, index) => {
+      if(index === this.state.messages.length-1){
+        let mostRecent = new Date(message.timeStamp);
+
+        return <p key={index}>{message.text} <br/>{`${mostRecent.getHours()}:${mostRecent.getMinutes()}:${mostRecent.getSeconds()}`}</p>;
+      }
+      return <p key={index}>{message.text}</p>;
     });
     return (
       <div className="container">
@@ -96,12 +109,8 @@ class ChatChild extends Component {
                 <hr />
               </div>
               <div className="card-footer">
-                {/* <input type="text" placeholder="Username" value={this.state.username} onChange={ev => this.setState({username: ev.target.value})} className="form-control"/> */}
-                {/* <h3>User Name:</h3>
-                                <h4>{this.props.userName}</h4> */}
-                {/* <h3>RoomKey:</h3>
-                                <h4>{this.props.roomKey}</h4> */}
-                <div className="messages">{messages}</div>
+
+                <div className="messages">{messagesList}</div>
                 {this.state.userTyping && (
                   <p className="user-typing">Another User is Typing</p>
                 )}
@@ -109,10 +118,8 @@ class ChatChild extends Component {
                 <input
                   type="text"
                   onChange={e => this.updateInput(e.target.value)}
-                  // onChange={ev => this.setState({message: ev.target.value})}
-                  // placeholder="Message"
                   className="form-control"
-                  value={this.state.message}
+                  value={this.state.message.text}
                 />
                 <br />
                 <button
