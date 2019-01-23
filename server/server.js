@@ -1,11 +1,37 @@
-const express = require('express');
+require('dotenv').config(); //require the .env file
+
 const socket = require('socket.io');
-const PORT = 5000;
+// const PORT = 5000;
+const express = require('express')
+// , session =require('express-session')
+// , passport = require('passport')
+// , Auth0Strategy = require('passport-auth0')
+, massive = require('massive')
+, controller = require('../src/controllers/controller.js')
+// , cronHandler = require('../src/components/CronHandler/CronHandler.js')
+, bodyParser = require('body-parser')//Dont forget this next time you fool!!!!
+, cors = require('cors')
+, exphbs = require('express-handlebars')
+
+const {
+    SERVER_PORT,
+    SESSION_SECRET,
+    DOMAIN,
+    CLIENT_SECRET,
+    CONNECTION_STRING
+} = process.env;
+
 const app = express();
-app.use(express)
+massive(CONNECTION_STRING).then(db =>{
+    app.set('db' , db);
+})
+app.use(cors());
+app.use(bodyParser.json())
+//I am not sure if these can be split. I might take a look later.
+// const io = socket(app.listen(SEVER_PORT))
+const io = socket(app.listen(SERVER_PORT, () => console.log(`listening on port ${SERVER_PORT}`)));
 
-const io = socket(app.listen(PORT, () => console.log(`listening on port ${PORT}`)));
-
+app.post('/send', controller.postMessage)
 
 io.on('connection', (socket) => {
 
@@ -42,3 +68,4 @@ io.on('connection', (socket) => {
     })
 });
 
+// app.listen(SERVER_PORT, () => console.log(`listening on port ${SERVER_PORT}`))

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import io from "socket.io-client";
+import axios from "axios";
 
 class ChatChild extends Component {
   constructor(props) {
@@ -15,7 +16,8 @@ class ChatChild extends Component {
       },
       userTyping: false
     };
-    this.socket = io.connect(":5000");
+    //changed from 5000 to 3000
+    this.socket = io.connect(":3000");
 
     this.socket.on("generate room response", data => this.roomResponse(data));
     this.socket.on("user is typing", data => this.setUserTyping(data));
@@ -46,6 +48,9 @@ class ChatChild extends Component {
   }
 
   sendMessage = (type, message) => {
+    axios.post('/send', message).then((res) =>{
+      console.log('It is finished.')
+    })
     this.socket.emit(`${type} message to room`, {
       message: message,
       roomKey: this.props.roomKey
