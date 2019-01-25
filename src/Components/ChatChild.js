@@ -18,7 +18,9 @@ class ChatChild extends Component {
     };
     //changed from 5000 to 3000
     this.socket = io.connect(":3000");
-    this.socket.on("generate room response", data => this.roomResponse(data));
+    // REMOVE THIS FUNCTIONALITY FOR SECURITY PURPOSES
+    // this.socket.on("generate room response", data => this.roomResponse(data));
+    this.socket.on("fetch new messages", data=> this.updateChat(data))
     this.socket.on("user is typing", data => this.setUserTyping(data));
     this.socket.on(`user not typing`, data => this.removeUserTyping(data));
   }
@@ -54,29 +56,20 @@ class ChatChild extends Component {
       this.socket.emit("join room", { roomKey: this.props.roomKey });
     }
   }
-
-  roomResponse(data) {
-    console.log(data.message)
-    this.setState({ messages: [...this.state.messages, data.message] });
+  // REMOVE THIS FUNCTIONALITY FOR SECURITY PURPOSES
+  // roomResponse(data) {
+  //   console.log(data.message)
+  //   this.setState({ messages: [...this.state.messages, data.message] });
+  // }
+  updateChat(data) {
+    if(data.userID !== this.props.userID){
+      // CHANGE "all_messages" to "past_conversation" WHEN WE GET THE DATABASE SET UP
+      axios.get('/all_messages').then((res)=>{
+        this.setState({ messages: res.data });
+      })
+    }
   }
 
-  sendMessage = (type, message) => {
-    axios.post('/send', message).then((res) =>{
-    })
-    console.log(type, message, this.props.roomKey, "lets see...")
-    this.socket.emit(`${type} message to room`, {
-      message: message,
-      roomKey: this.props.roomKey
-    });
-    // }
-    this.setState({ message: {
-      author_id:0,
-      message:'',
-      timeStamp:Date()} }, () =>
-      
-      this.socket.emit("user not typing", { roomKey: this.props.roomKey })
-    );
-  };
 
   updateInput(val) {
     this.setState({ 
@@ -90,7 +83,33 @@ class ChatChild extends Component {
         this.socket.emit("user is typing", { roomKey: this.props.roomKey });
       else this.socket.emit("user not typing", { roomKey: this.props.roomKey });
     });
-  }
+  };
+  
+  sendMessage = (message) => {
+    axios.post('/send', message).then((res) =>{
+    })
+    console.log(message, this.props.roomKey, "lets see...")
+    //THIS IS WHAT WE WILL REPLACE
+    // this.socket.emit(`${type} message to room`, {
+    //   message: message,
+    //   roomKey: this.props.roomKey
+    // });
+    //THIS IS WHAT WE WILL REPLACE IT WITH
+    this.socket.emit('notify user', {
+      userID:this.props.userID,
+      roomKey:this.props.roomKey
+    });
+    this.setState({ 
+      message: {
+        author_id:0,
+        message:'',
+        timeStamp:Date()},
+        messages:[...this.state.messages, message]
+       }, () =>{
+          this.socket.emit("user not typing", { roomKey: this.props.roomKey })
+        }
+    );
+  };
 
   setUserTyping(data) {
     if (data.roomKey === this.props.roomKey) this.setState({ userTyping: true });
@@ -120,7 +139,7 @@ class ChatChild extends Component {
     return (
       <div className="container">
         <div className="row">
-          <div className="col-4">
+
             <div className="card">
               <div className="card-body">
                 <div className="card-title">
@@ -147,7 +166,7 @@ class ChatChild extends Component {
                 />
                 <br />
                 <button
-                  onClick={() => this.sendMessage("blast", this.state.message)}
+                  onClick={() => this.sendMessage(this.state.message)}
                   className="btn btn-primary form-control"
                 >
                   Send
@@ -156,7 +175,6 @@ class ChatChild extends Component {
             </div>
           </div>
         </div>
-      </div>
 
     );
   }

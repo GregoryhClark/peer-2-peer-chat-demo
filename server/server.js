@@ -11,7 +11,7 @@ const express = require('express')
 // , cronHandler = require('../src/components/CronHandler/CronHandler.js')
 , bodyParser = require('body-parser')//Dont forget this next time you fool!!!!
 , cors = require('cors')
-, exphbs = require('express-handlebars')
+
 
 const {
     SERVER_PORT,
@@ -21,8 +21,6 @@ const {
     CLIENT_SECRET,
     CALLBACK_URL,
     CONNECTION_STRING,
-    EMAIL_PASS,
-    EMAIL_USER,
     LOGOUT,
     REACT_APP_LOGIN_SUCCESS,
     REACT_APP_LOGIN_FAIL
@@ -127,19 +125,24 @@ io.on('connection', (socket) => {
 
     })
 
-    socket.on('emit message to room', data => {
-        console.log('room socket hit: emit ', data.roomKey)
-        socket.emit('generate room response', data)
-    })
+    // socket.on('emit message to room', data => {
+    //     console.log('room socket hit: emit ', data.roomKey)
+    //     socket.emit('generate room response', data)
+    // })
 
-    socket.on('broadcast message to room', data => {
-        // console.log('room socket hit: broadcast ', data.room)
-        socket.to(data.roomKey).broadcast.emit('generate room response', data)
-    })
+    // socket.on('broadcast message to room', data => {
+    //     // console.log('room socket hit: broadcast ', data.room)
+    //     socket.to(data.roomKey).broadcast.emit('generate room response', data)
+    // })
     socket.on('blast message to room', data => {
         // console.log('room socket hit: blast', data.room)
         io.to(data.roomKey).emit('generate room response', data)
     })
+    socket.on('notify user', data => {
+        console.log('notify user', data)
+        io.to(data.roomKey).emit('fetch new messages', data)
+    })
+
 });
 
 // app.listen(SERVER_PORT, () => console.log(`listening on port ${SERVER_PORT}`))
