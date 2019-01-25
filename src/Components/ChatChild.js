@@ -6,7 +6,7 @@ class ChatChild extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      messages: [],
+      messages: ['empty'],
       previousRoom: props.previousRoom,
       roomKey: props.roomKey,
       message: {
@@ -28,6 +28,19 @@ class ChatChild extends Component {
       console.log("will join rooom ", this.props.roomKey);
       this.socket.emit("join room", { roomKey: this.props.roomKey });
     }
+    //THIS IS WHAT THE REAL VERSION WILL LOOK LIKE ONCE WE HAVE THE DATABASE
+    // let chattingUsers = {
+    //   user1:this.props.userID,
+    //   user2:this.props.chattingWithID
+    // }
+    // axios.get(`/past_conversation/${this.props.chattingWithID}`).then(
+
+    // )
+    
+    //THIS IS TEMPORARY JUST FOR CONCEPT
+    axios.get('/all_messages').then((res)=>{
+      this.setState({ messages: res.data });
+    })
   }
   componentDidUpdate() {
     if (this.props.roomKey) {
@@ -44,13 +57,14 @@ class ChatChild extends Component {
   }
 
   roomResponse(data) {
+    console.log(data.message)
     this.setState({ messages: [...this.state.messages, data.message] });
   }
 
   sendMessage = (type, message) => {
     axios.post('/send', message).then((res) =>{
-      console.log('It is finished.')
     })
+    console.log(type, message, this.props.roomKey, "lets see...")
     this.socket.emit(`${type} message to room`, {
       message: message,
       roomKey: this.props.roomKey
@@ -68,8 +82,8 @@ class ChatChild extends Component {
   updateInput(val) {
     this.setState({ 
       message: {
-        senderID:this.props.userID,
-        text:val,
+        author_id:this.props.userID,
+        message:val,
         timeStamp:Date()
       }
      }, () => {
@@ -92,12 +106,17 @@ class ChatChild extends Component {
 
   render() {
     const messagesList = this.state.messages.map((message, index) => {
-      if(index === this.state.messages.length-1){
-        let mostRecent = new Date(message.timeStamp);
+      // if(index === this.state.messages.length-1){
+        // let mostRecent = message.message_timeStamp;
+      // 
+        // return <p key={index}>{message.message} <br/>{`${mostRecent.getHours()}:${mostRecent.getMinutes()}:${mostRecent.getSeconds()}`}</p>;
+      // }
 
-        return <p key={index}>{message.text} <br/>{`${mostRecent.getHours()}:${mostRecent.getMinutes()}:${mostRecent.getSeconds()}`}</p>;
+      //could not use === here since author_id is returning as a string. We should fix this later.
+      if(message.author_id == this.props.userID){
+        return <p className = "my_message" key={index}>ME:{message.message}</p>;
       }
-      return <p key={index}>{message.text}</p>;
+      return <p className = "foreign_message" key={index}>{this.props.chattingWith}: {message.message}</p>;
     });
     return (
       <div className="container">

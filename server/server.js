@@ -98,6 +98,8 @@ app.get('/auth/logout', (req, res) => {
     res.redirect(LOGOUT)
 })
 app.get(`/all_other_users/:id`, controller.getOtherUsers)
+app.get(`/past_conversation/`, controller.pastConversation)
+app.get('/all_messages', controller.getAllMessages)
 
 //I am not sure if these can be split. I might take a look later.
 // const io = socket(app.listen(SEVER_PORT))
@@ -117,7 +119,7 @@ io.on('connection', (socket) => {
     //ROOMS SOCKETS
     socket.on('join room', data => {
         socket.join(data.roomKey)
-        // console.log('joined room ', data.roomKey)
+        console.log('joined room ', data.roomKey)
         io.to(data.roomKey).emit('room joined', data)
     })
     socket.on("leave room", data => {

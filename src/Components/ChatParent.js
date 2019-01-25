@@ -16,6 +16,7 @@ export default class ChatParent extends Component {
       userLastName:'',
       chattingFirstName: "",
       chattingLastName: "",
+      chattingWithID:null,
       roomKey: "",
       previousRoomKey: "Room 1",
       userGroups: [],
@@ -77,6 +78,7 @@ export default class ChatParent extends Component {
       this.setState({
         previousRoomKey: this.state.roomKey,
         roomKey: newKey,
+        chattingWithID: values[0],
         chattingFirstName: values[1],
         chattingLastName: values[2]
       });
@@ -104,6 +106,7 @@ export default class ChatParent extends Component {
     chattingWith={`${this.state.chattingFirstName} ${this.state.chattingLastName}`}
     roomKey={this.state.roomKey}
     previousRoomKey={this.state.previousRoomKey}
+    chattingWithID={this.state.user}
   />:
   []
     return (
