@@ -6,8 +6,8 @@ module.exports = {
 postMessage: (req, res) => {
     const db = req.app.get('db');
     // const {senderID, text, timeStamp} = req.body;
-    const {senderID, text} = req.body;
-    db.post_message([senderID, text])
+    const {author_id, message} = req.body;
+    db.post_message([author_id, message])
         .then((message) => { res.status(200).send(message)})
         .catch(() => res.status(500).send())
 },

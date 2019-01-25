@@ -102,7 +102,7 @@ export default class ChatParent extends Component {
     let chatView = this.state.roomKey? 
     <ChatChild
     userID = {this.state.userID}
-    userName={`${this.state.userFirstName} ${this.state.userLastName}`}
+    userName={`${this.state.user.first_name} ${this.state.user.last_name}`}
     chattingWith={`${this.state.chattingFirstName} ${this.state.chattingLastName}`}
     roomKey={this.state.roomKey}
     previousRoomKey={this.state.previousRoomKey}
@@ -111,7 +111,10 @@ export default class ChatParent extends Component {
   []
     return (
       <div className="chat_parent_wrapper">
-       <button><a href={REACT_APP_LOGOUT}>Logout</a></button>
+      <div>
+      <button><a href={REACT_APP_LOGOUT}>Logout</a></button>
+      </div>
+       
           
           <div className="convos_wrapper">
           <h2>Select A User</h2>

@@ -6,19 +6,18 @@ class ChatChild extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      messages: ['empty'],
+      messages: [],
       previousRoom: props.previousRoom,
       roomKey: props.roomKey,
       message: {
-        senderID:0,
-        text:'',
+        author_id:0,
+        message:'',
         timeStamp:Date
       },
       userTyping: false
     };
     //changed from 5000 to 3000
     this.socket = io.connect(":3000");
-
     this.socket.on("generate room response", data => this.roomResponse(data));
     this.socket.on("user is typing", data => this.setUserTyping(data));
     this.socket.on(`user not typing`, data => this.removeUserTyping(data));
@@ -71,8 +70,8 @@ class ChatChild extends Component {
     });
     // }
     this.setState({ message: {
-      senderID:0,
-      text:'',
+      author_id:0,
+      message:'',
       timeStamp:Date()} }, () =>
       
       this.socket.emit("user not typing", { roomKey: this.props.roomKey })
@@ -87,7 +86,7 @@ class ChatChild extends Component {
         timeStamp:Date()
       }
      }, () => {
-      if (this.state.message.text)
+      if (this.state.message.message)
         this.socket.emit("user is typing", { roomKey: this.props.roomKey });
       else this.socket.emit("user not typing", { roomKey: this.props.roomKey });
     });
@@ -131,10 +130,11 @@ class ChatChild extends Component {
                     Chatting With:{this.props.chattingWith}
                 </div>
                 <hr />
+                <div className="messages">{messagesList}</div>
+
               </div>
               <div className="card-footer">
 
-                <div className="messages">{messagesList}</div>
                 {this.state.userTyping && (
                   <p className="user-typing">Another User is Typing</p>
                 )}
@@ -143,7 +143,7 @@ class ChatChild extends Component {
                   type="text"
                   onChange={e => this.updateInput(e.target.value)}
                   className="form-control"
-                  value={this.state.message.text}
+                  value={this.state.message.message}
                 />
                 <br />
                 <button
